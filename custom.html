@@ -36,7 +36,7 @@
         box-sizing: border-box;
       }
       html {
-        font-size: 16px;
+        font-size: 20px;
         color-scheme: light;
       }
       body {
@@ -436,7 +436,9 @@
         padding: 1.8rem 1.2rem 0;
         position: relative;
         border-radius: 0.6rem;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        box-shadow:
+          0 1px 6px rgba(0, 0, 0, 0.07),
+          0 0 1px rgba(0, 0, 0, 0.05);
         opacity: 0;
         transform: translateY(20px);
         transition:
@@ -446,7 +448,9 @@
         overflow: hidden;
       }
       .res-panel:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.09), 0 0 1px rgba(0,0,0,0.06);
+        box-shadow:
+          0 4px 16px rgba(0, 0, 0, 0.09),
+          0 0 1px rgba(0, 0, 0, 0.06);
       }
       .res-panel.show {
         opacity: 1;
@@ -536,7 +540,9 @@
         position: relative;
         border-radius: 0.6rem;
         background: var(--bg);
-        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        box-shadow:
+          0 1px 6px rgba(0, 0, 0, 0.07),
+          0 0 1px rgba(0, 0, 0, 0.05);
         opacity: 0;
         transform: translateY(14px);
         transition:
@@ -546,7 +552,9 @@
         overflow: hidden;
       }
       .res-stat:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.09), 0 0 1px rgba(0,0,0,0.06);
+        box-shadow:
+          0 4px 16px rgba(0, 0, 0, 0.09),
+          0 0 1px rgba(0, 0, 0, 0.06);
       }
       .res-stat.show {
         opacity: 1;
@@ -637,11 +645,15 @@
         padding: 0.5rem 0.8rem;
         background: var(--bg);
         border-radius: 0.5rem;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        box-shadow:
+          0 1px 6px rgba(0, 0, 0, 0.07),
+          0 0 1px rgba(0, 0, 0, 0.05);
         margin-bottom: 0.75rem;
         opacity: 0;
         transform: translateY(10px);
-        transition: opacity 0.5s ease, transform 0.5s var(--ease-out);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s var(--ease-out);
         flex-wrap: wrap;
       }
       .quality-strip.show {
@@ -672,7 +684,7 @@
         position: relative;
       }
       .quality-cat:hover {
-        background: rgba(0,0,0,0.03);
+        background: rgba(0, 0, 0, 0.03);
       }
       .quality-cat svg {
         width: 14px;
@@ -699,9 +711,15 @@
         background: var(--fg-lll);
         transition: background 0.3s;
       }
-      .quality-dots .dot.on { background: #3eab6a; }
-      .quality-dots .dot.med { background: #e0a820; }
-      .quality-dots .dot.low { background: #d45; }
+      .quality-dots .dot.on {
+        background: #3eab6a;
+      }
+      .quality-dots .dot.med {
+        background: #e0a820;
+      }
+      .quality-dots .dot.low {
+        background: #d45;
+      }
       /* Tooltip */
       .quality-cat .q-tip {
         display: none;
@@ -709,7 +727,7 @@
         bottom: calc(100% + 6px);
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(40,40,40,0.95);
+        background: rgba(40, 40, 40, 0.95);
         color: #eee;
         font-size: 0.5rem;
         line-height: 1.5;
@@ -720,13 +738,13 @@
         z-index: 10;
       }
       .quality-cat .q-tip::after {
-        content: '';
+        content: "";
         position: absolute;
         top: 100%;
         left: 50%;
         transform: translateX(-50%);
         border: 4px solid transparent;
-        border-top-color: rgba(40,40,40,0.95);
+        border-top-color: rgba(40, 40, 40, 0.95);
       }
       .quality-cat:hover .q-tip {
         display: block;
@@ -741,7 +759,9 @@
         display: none;
         opacity: 0;
         transform: translateY(12px);
-        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        box-shadow:
+          0 1px 6px rgba(0, 0, 0, 0.07),
+          0 0 1px rgba(0, 0, 0, 0.05);
         transition:
           opacity 0.4s ease,
           transform 0.4s var(--ease-out);
@@ -802,6 +822,9 @@
 
       /* ── Responsive ── */
       @media (max-width: 44.9375em) {
+        html {
+          font-size: 16px;
+        }
         .hdr-in {
           padding: 0 0.4rem;
         }
@@ -1488,43 +1511,57 @@
 
         var cats = [
           {
-            id: 'qBrowse', tipId: 'qtBrowse',
+            id: "qBrowse",
+            tipId: "qtBrowse",
             tiers: [
-              { check: dl >= 2 && ping <= 100,   tip: '\u2265 2 Mbit/s DL, \u2264 100 ms Ping' },
-              { check: dl >= 10 && ping <= 50,    tip: '\u2265 10 Mbit/s DL, \u2264 50 ms Ping' },
-              { check: dl >= 25 && ping <= 20,    tip: '\u2265 25 Mbit/s DL, \u2264 20 ms Ping' }
+              { check: dl >= 2 && ping <= 100, tip: "\u2265 2 Mbit/s DL, \u2264 100 ms Ping" },
+              { check: dl >= 10 && ping <= 50, tip: "\u2265 10 Mbit/s DL, \u2264 50 ms Ping" },
+              { check: dl >= 25 && ping <= 20, tip: "\u2265 25 Mbit/s DL, \u2264 20 ms Ping" }
             ]
           },
           {
-            id: 'qMusic', tipId: 'qtMusic',
+            id: "qMusic",
+            tipId: "qtMusic",
             tiers: [
-              { check: dl >= 1 && ping <= 200,    tip: '\u2265 1 Mbit/s DL, \u2264 200 ms Ping' },
-              { check: dl >= 5 && ping <= 100,     tip: '\u2265 5 Mbit/s DL, \u2264 100 ms Ping' },
-              { check: dl >= 15 && ping <= 50,     tip: '\u2265 15 Mbit/s DL, \u2264 50 ms Ping' }
+              { check: dl >= 1 && ping <= 200, tip: "\u2265 1 Mbit/s DL, \u2264 200 ms Ping" },
+              { check: dl >= 5 && ping <= 100, tip: "\u2265 5 Mbit/s DL, \u2264 100 ms Ping" },
+              { check: dl >= 15 && ping <= 50, tip: "\u2265 15 Mbit/s DL, \u2264 50 ms Ping" }
             ]
           },
           {
-            id: 'qGaming', tipId: 'qtGaming',
+            id: "qGaming",
+            tipId: "qtGaming",
             tiers: [
-              { check: dl >= 5 && ping <= 60 && jitter <= 30,   tip: '\u2265 5 Mbit/s DL, \u2264 60 ms Ping, \u2264 30 ms Jitter' },
-              { check: dl >= 15 && ping <= 25 && jitter <= 10,   tip: '\u2265 15 Mbit/s DL, \u2264 25 ms Ping, \u2264 10 ms Jitter' },
-              { check: dl >= 30 && ping <= 10 && jitter <= 3,    tip: '\u2265 30 Mbit/s DL, \u2264 10 ms Ping, \u2264 3 ms Jitter' }
+              {
+                check: dl >= 5 && ping <= 60 && jitter <= 30,
+                tip: "\u2265 5 Mbit/s DL, \u2264 60 ms Ping, \u2264 30 ms Jitter"
+              },
+              {
+                check: dl >= 15 && ping <= 25 && jitter <= 10,
+                tip: "\u2265 15 Mbit/s DL, \u2264 25 ms Ping, \u2264 10 ms Jitter"
+              },
+              {
+                check: dl >= 30 && ping <= 10 && jitter <= 3,
+                tip: "\u2265 30 Mbit/s DL, \u2264 10 ms Ping, \u2264 3 ms Jitter"
+              }
             ]
           },
           {
-            id: 'qStream', tipId: 'qtStream',
+            id: "qStream",
+            tipId: "qtStream",
             tiers: [
-              { check: dl >= 5 && ping <= 100,     tip: '\u2265 5 Mbit/s DL, \u2264 100 ms Ping' },
-              { check: dl >= 25 && ping <= 50,      tip: '\u2265 25 Mbit/s DL, \u2264 50 ms Ping' },
-              { check: dl >= 50 && ping <= 25,      tip: '\u2265 50 Mbit/s DL, \u2264 25 ms Ping' }
+              { check: dl >= 5 && ping <= 100, tip: "\u2265 5 Mbit/s DL, \u2264 100 ms Ping" },
+              { check: dl >= 25 && ping <= 50, tip: "\u2265 25 Mbit/s DL, \u2264 50 ms Ping" },
+              { check: dl >= 50 && ping <= 25, tip: "\u2265 50 Mbit/s DL, \u2264 25 ms Ping" }
             ]
           },
           {
-            id: 'qVideo', tipId: 'qtVideo',
+            id: "qVideo",
+            tipId: "qtVideo",
             tiers: [
-              { check: dl >= 2 && ul >= 1 && ping <= 100,   tip: '\u2265 2 DL, \u2265 1 UL Mbit/s, \u2264 100 ms Ping' },
-              { check: dl >= 5 && ul >= 3 && ping <= 50,     tip: '\u2265 5 DL, \u2265 3 UL Mbit/s, \u2264 50 ms Ping' },
-              { check: dl >= 15 && ul >= 5 && ping <= 20,    tip: '\u2265 15 DL, \u2265 5 UL Mbit/s, \u2264 20 ms Ping' }
+              { check: dl >= 2 && ul >= 1 && ping <= 100, tip: "\u2265 2 DL, \u2265 1 UL Mbit/s, \u2264 100 ms Ping" },
+              { check: dl >= 5 && ul >= 3 && ping <= 50, tip: "\u2265 5 DL, \u2265 3 UL Mbit/s, \u2264 50 ms Ping" },
+              { check: dl >= 15 && ul >= 5 && ping <= 20, tip: "\u2265 15 DL, \u2265 5 UL Mbit/s, \u2264 20 ms Ping" }
             ]
           }
         ];
@@ -1537,22 +1574,22 @@
             else break;
           }
           // color dots
-          var dots = document.querySelectorAll('#' + cat.id + ' .dot');
+          var dots = document.querySelectorAll("#" + cat.id + " .dot");
           for (var d = 0; d < dots.length; d++) {
-            dots[d].className = 'dot';
+            dots[d].className = "dot";
             if (d < score) {
-              if (score === 3) dots[d].classList.add('on');
-              else if (score === 2) dots[d].classList.add('med');
-              else dots[d].classList.add('low');
+              if (score === 3) dots[d].classList.add("on");
+              else if (score === 2) dots[d].classList.add("med");
+              else dots[d].classList.add("low");
             }
           }
           // build tooltip showing what each dot requires and whether it's met
           var tipLines = [];
           for (var t = 0; t < cat.tiers.length; t++) {
-            var met = (t < score);
-            tipLines.push((met ? '\u2713' : '\u2717') + ' Stufe ' + (t+1) + ': ' + cat.tiers[t].tip);
+            var met = t < score;
+            tipLines.push((met ? "\u2713" : "\u2717") + " Stufe " + (t + 1) + ": " + cat.tiers[t].tip);
           }
-          I(cat.tipId).innerHTML = tipLines.join('<br>');
+          I(cat.tipId).innerHTML = tipLines.join("<br>");
         }
       }
 
@@ -1606,9 +1643,10 @@
     <!-- Tabs -->
     <nav class="tabs">
       <div class="tabs-in">
-        <a href="https://wobcom.net/" target="_blank" rel="noopener">ISP-Seite</a>
+        <a href="https://www.wobcom.de/" target="_blank" rel="noopener">Website</a>
         <a class="on">Speedtest</a>
-        <a href="https://wobcom.net/communities/" target="_blank" rel="noopener">BGP Communities</a>
+        <a href="https://www.wobcom.de/service-news/kontakt/" target="_blank" rel="noopener">Kontakt</a>
+        <a href="https://www.wobcom.de/karriere/" target="_blank" rel="noopener">Karriere</a>
       </div>
     </nav>
 
@@ -1716,32 +1754,70 @@
                 <span class="quality-strip-label">Qualität</span>
                 <div class="quality-cats">
                   <div class="quality-cat" id="qBrowse">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+                      />
+                    </svg>
+                    <div class="quality-dots">
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                    </div>
                     <span class="quality-cat-name">Surfen</span>
                     <div class="q-tip" id="qtBrowse"></div>
                   </div>
                   <div class="quality-cat" id="qMusic">
-                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                    </svg>
+                    <div class="quality-dots">
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                    </div>
                     <span class="quality-cat-name">Musik</span>
                     <div class="q-tip" id="qtMusic"></div>
                   </div>
                   <div class="quality-cat" id="qGaming">
-                    <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+                      />
+                    </svg>
+                    <div class="quality-dots">
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                    </div>
                     <span class="quality-cat-name">Gaming</span>
                     <div class="q-tip" id="qtGaming"></div>
                   </div>
                   <div class="quality-cat" id="qStream">
-                    <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7l7 4z"/></svg>
-                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7l7 4z"
+                      />
+                    </svg>
+                    <div class="quality-dots">
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                    </div>
                     <span class="quality-cat-name">Stream</span>
                     <div class="q-tip" id="qtStream"></div>
                   </div>
                   <div class="quality-cat" id="qVideo">
-                    <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"
+                      />
+                    </svg>
+                    <div class="quality-dots">
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                      <span class="dot"></span>
+                    </div>
                     <span class="quality-cat-name">Anrufe</span>
                     <div class="q-tip" id="qtVideo"></div>
                   </div>
@@ -1780,8 +1856,9 @@
           <a href="https://github.com/librespeed/speedtest" target="_blank" rel="noopener">LibreSpeed</a>
         </span>
         <div class="foot-meta">
-          <a href="https://wobcom.net/" target="_blank" rel="noopener">ISP-Seite</a>
-          <a href="https://www.wobcom.de/" target="_blank" rel="noopener">Wobcom.de</a>
+          <a href="https://www.wobcom.de/" target="_blank" rel="noopener">Website</a>
+          <a href="https://www.wobcom.de/service-news/kontakt/" target="_blank" rel="noopener">Kontakt</a>
+          <a href="https://www.wobcom.de/karriere/" target="_blank" rel="noopener">Karriere</a>
           <a href="https://www.wobcom.de/impressum/" target="_blank" rel="noopener">Impressum</a>
         </div>
       </div>
