@@ -1,0 +1,1790 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
+    <title>AS9136 Speedtest</title>
+    <script src="speedtest.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --pri: #a5bd5a;
+        --pri-d: #8aa33e;
+        --acc: #813060;
+        --fg: rgba(0, 0, 0, 0.87);
+        --fg-l: rgba(0, 0, 0, 0.54);
+        --fg-ll: rgba(0, 0, 0, 0.32);
+        --fg-lll: rgba(0, 0, 0, 0.07);
+        --bg: #fff;
+        --bg2: #f5f5f5;
+        --bg-page: #fafafa;
+        --foot: rgba(0, 0, 0, 0.87);
+        --shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.1), 0 0 0.0625rem rgba(0, 0, 0, 0.08);
+        --c-dl: #6d8f2e;
+        --c-ul: #4a8a32;
+        --c-ping: #9a8e20;
+        --c-jit: #a06528;
+        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        font-size: 16px;
+        color-scheme: light;
+      }
+      body {
+        width: 100%;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Roboto", sans-serif;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* ── Header ── */
+      .hdr {
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        background: var(--pri);
+        color: #fff;
+      }
+      .hdr-in {
+        display: flex;
+        align-items: center;
+        max-width: 61rem;
+        margin: 0 auto;
+        padding: 0 0.6rem;
+        height: 3rem;
+      }
+      .hdr-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        flex: 1;
+        margin-left: 0.4rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .hdr a {
+        display: inline-flex;
+        align-items: center;
+      }
+      .hdr img {
+        height: 1.6rem;
+      }
+      #serverArea {
+        margin-left: 0.4rem;
+      }
+      #serverArea select {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #fff;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.1rem;
+        font-family: "Roboto", sans-serif;
+        font-size: 0.7rem;
+        outline: none;
+        cursor: pointer;
+      }
+      #serverArea select option {
+        color: #333;
+        background: #fff;
+      }
+
+      /* ── Tabs ── */
+      .tabs {
+        background: var(--pri-d);
+        color: #fff;
+        overflow: auto;
+        white-space: nowrap;
+      }
+      .tabs-in {
+        max-width: 61rem;
+        margin: 0 auto;
+        display: flex;
+        padding: 0 0.6rem;
+      }
+      .tabs a {
+        display: block;
+        font-size: 0.7rem;
+        line-height: 2.4rem;
+        padding: 0 0.65rem;
+        opacity: 0.7;
+        color: inherit;
+        text-decoration: none;
+        transition: opacity 0.25s;
+        cursor: pointer;
+      }
+      .tabs a:hover,
+      .tabs a.on {
+        opacity: 1;
+      }
+
+      /* ── Loading ── */
+      #loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 40vh;
+        gap: 0.8rem;
+      }
+      .spin {
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 2px solid var(--fg-lll);
+        border-top-color: var(--pri);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #message {
+        font-size: 0.8rem;
+        color: var(--fg-l);
+      }
+
+      /* ── Layout ── */
+      .wrap {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 5.4rem);
+      }
+      .main {
+        flex: 1;
+      }
+      .main-in {
+        max-width: 61rem;
+        margin: 0 auto;
+        padding: 1.5rem 0.6rem;
+      }
+      .content {
+        max-width: 48rem;
+        background: var(--bg-page);
+        border-radius: 0.75rem;
+        padding: 0 0.5rem 1rem;
+      }
+      #testWrapper {
+        display: none;
+      }
+      #testWrapper.visible {
+        display: block;
+        animation: fadeUp 0.5s var(--ease-out) both;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* ── Hero ── */
+      .hero {
+        text-align: center;
+        padding: 3.5rem 0 1.5rem;
+        transition: padding 0.5s var(--ease-out);
+      }
+      .hero.compact {
+        padding: 1.5rem 0 0.5rem;
+      }
+      .hero h1 {
+        font-size: 1.8rem;
+        font-weight: 300;
+        color: var(--fg);
+        margin-bottom: 0.3rem;
+        letter-spacing: -0.01em;
+        transition: font-size 0.4s var(--ease-out);
+      }
+      .hero.compact h1 {
+        font-size: 1.2rem;
+      }
+      .hero-sub {
+        font-size: 0.75rem;
+        color: var(--fg-l);
+        margin-bottom: 1.5rem;
+        transition:
+          opacity 0.3s ease,
+          max-height 0.3s ease;
+        max-height: 3em;
+        overflow: hidden;
+      }
+      .hero.compact .hero-sub {
+        opacity: 0;
+        max-height: 0;
+        margin: 0;
+      }
+
+      .ip-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.65rem;
+        color: var(--fg-ll);
+        margin-top: 0.8rem;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          opacity 0.4s ease 0.15s,
+          max-height 0.4s ease 0.1s;
+      }
+      .ip-row.show {
+        opacity: 1;
+        max-height: 3em;
+      }
+      .ip-lbl {
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .ip-val {
+        font-family: "Roboto Mono", monospace;
+        color: var(--fg-l);
+      }
+
+      /* ── Start Button ── */
+      .btn-wrap {
+        margin: 0 0 0.5rem;
+      }
+      #startBtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 10rem;
+        height: 2.75rem;
+        padding: 0 2rem;
+        background: var(--pri);
+        color: #fff;
+        border: none;
+        border-radius: 2rem;
+        cursor: pointer;
+        font-family: "Roboto", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        transition:
+          background 0.3s,
+          transform 0.15s,
+          box-shadow 0.3s;
+        box-shadow: var(--shadow);
+      }
+      #startBtn:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.15);
+      }
+      #startBtn:active {
+        transform: scale(0.97);
+        box-shadow: none;
+      }
+      #startBtn.abort {
+        background: #d44;
+      }
+
+      /* ── Gauge ── */
+      .gauge-sec {
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition:
+          max-height 0.65s var(--ease-out),
+          opacity 0.45s ease,
+          margin 0.4s ease;
+        margin: 0;
+        text-align: center;
+      }
+      .gauge-sec.on {
+        max-height: 360px;
+        opacity: 1;
+        margin: 1.2rem 0 0.5rem;
+      }
+      .gauge-phase {
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--fg-l);
+        margin-bottom: 0.3rem;
+        transition: color 0.3s ease;
+      }
+      .gauge-wrap {
+        position: relative;
+        display: inline-block;
+        width: 280px;
+        height: 175px;
+      }
+      .gauge-wrap canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .gauge-over {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        pointer-events: none;
+      }
+      .gauge-num {
+        display: block;
+        font-size: 2.4rem;
+        font-weight: 300;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        transition: color 0.3s ease;
+      }
+      .gauge-unit {
+        display: block;
+        font-size: 0.55rem;
+        color: var(--fg-l);
+        margin-top: 2px;
+      }
+
+      /* ── Progress ── */
+      .prog {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        max-width: 22rem;
+        margin: 0.6rem auto 0;
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity 0.4s ease 0.15s,
+          transform 0.4s ease 0.15s;
+      }
+      .prog.on {
+        opacity: 1;
+        transform: none;
+      }
+      .prog-lbl {
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: var(--fg-l);
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        min-width: 7em;
+      }
+      .prog-track {
+        flex: 1;
+        height: 3px;
+        background: var(--fg-lll);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .prog-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 2px;
+        background: var(--pri);
+        transition: width 0.25s ease;
+      }
+      .prog-pct {
+        font-size: 0.55rem;
+        font-weight: 500;
+        color: var(--fg-l);
+        font-family: "Roboto Mono", monospace;
+        min-width: 2.5em;
+        text-align: right;
+      }
+
+      /* ── Results ── */
+      .results {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          opacity 0.5s ease,
+          max-height 0.8s var(--ease-out);
+      }
+      .results.on {
+        opacity: 1;
+        max-height: 2000px;
+        overflow: visible;
+      }
+
+      /* ── Hero Results (DL / UL) ── */
+      .res-hero {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+      .res-panel {
+        background: var(--bg);
+        text-align: center;
+        padding: 1.8rem 1.2rem 0;
+        position: relative;
+        border-radius: 0.6rem;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        opacity: 0;
+        transform: translateY(20px);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s var(--ease-out),
+          box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+      .res-panel:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.09), 0 0 1px rgba(0,0,0,0.06);
+      }
+      .res-panel.show {
+        opacity: 1;
+        transform: none;
+      }
+      .res-panel .res-head {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-bottom: 0.6rem;
+      }
+      .res-panel .res-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .res-panel .res-icon svg {
+        width: 14px;
+        height: 14px;
+        fill: #fff;
+      }
+      .res-panel.dl .res-icon {
+        background: var(--c-dl);
+      }
+      .res-panel.ul .res-icon {
+        background: var(--c-ul);
+      }
+      .res-lbl {
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--fg-ll);
+      }
+      .res-val {
+        font-size: 3rem;
+        font-weight: 200;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+      .res-panel.dl .res-val {
+        color: var(--c-dl);
+      }
+      .res-panel.ul .res-val {
+        color: var(--c-ul);
+      }
+      .res-val:empty::after {
+        content: "\2014";
+        color: var(--fg-lll);
+      }
+      .res-unit {
+        font-size: 0.6rem;
+        color: var(--fg-ll);
+        margin-top: 0.2rem;
+        display: block;
+        font-weight: 500;
+      }
+      .res-graph {
+        height: 56px;
+        margin-top: 1rem;
+        background: var(--bg2);
+        border-top: 1px solid var(--fg-lll);
+        margin-left: -1.2rem;
+        margin-right: -1.2rem;
+      }
+      .res-graph canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ── Stats Cards ── */
+      .res-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+      .res-stat {
+        text-align: center;
+        padding: 1rem 0.6rem 0;
+        position: relative;
+        border-radius: 0.6rem;
+        background: var(--bg);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        opacity: 0;
+        transform: translateY(14px);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s var(--ease-out),
+          box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+      .res-stat:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.09), 0 0 1px rgba(0,0,0,0.06);
+      }
+      .res-stat.show {
+        opacity: 1;
+        transform: none;
+      }
+      .res-stat-lbl {
+        font-size: 0.55rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--fg-ll);
+        margin-bottom: 0.35rem;
+      }
+      .res-stat-vr {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 0.2rem;
+      }
+      .res-stat-v {
+        font-size: 1.4rem;
+        font-weight: 300;
+        line-height: 1;
+        letter-spacing: -0.01em;
+      }
+      .res-stat-v:empty::after {
+        content: "\2014";
+        color: var(--fg-lll);
+      }
+      .res-stat-u {
+        font-size: 0.5rem;
+        color: var(--fg-ll);
+      }
+      .res-stat.ping .res-stat-v {
+        color: var(--c-ping);
+      }
+      .res-stat.jitter .res-stat-v {
+        color: var(--c-jit);
+      }
+      .res-stat.ip .res-stat-v {
+        font-size: 0.6rem;
+        font-weight: 400;
+        color: var(--fg-l);
+        font-family: "Roboto Mono", monospace;
+        word-break: break-all;
+      }
+      .res-stat-g {
+        height: 32px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+        background: var(--bg2);
+        border-top: 1px solid var(--fg-lll);
+        margin-left: -0.6rem;
+        margin-right: -0.6rem;
+      }
+      .res-stat-g canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ── Gauge Legend ── */
+      .gauge-legend {
+        display: flex;
+        justify-content: space-between;
+        max-width: 260px;
+        margin: -0.3rem auto 0.2rem;
+        padding: 0 6px;
+      }
+      .gauge-legend span {
+        font-size: 0.5rem;
+        color: var(--fg-ll);
+        font-family: "Roboto Mono", monospace;
+      }
+      .gauge-scale {
+        font-size: 0.5rem;
+        font-weight: 500;
+        color: var(--fg-ll);
+        margin-top: 0.1rem;
+        letter-spacing: 0.02em;
+      }
+
+      /* ── Quality Strip ── */
+      .quality-strip {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 0.8rem;
+        background: var(--bg);
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        margin-bottom: 0.75rem;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.5s ease, transform 0.5s var(--ease-out);
+        flex-wrap: wrap;
+      }
+      .quality-strip.show {
+        opacity: 1;
+        transform: none;
+      }
+      .quality-strip-label {
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: var(--fg-ll);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+      }
+      .quality-cats {
+        display: flex;
+        gap: 0.1rem;
+        flex: 1;
+        justify-content: center;
+      }
+      .quality-cat {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.5rem;
+        border-radius: 0.3rem;
+        cursor: default;
+        position: relative;
+      }
+      .quality-cat:hover {
+        background: rgba(0,0,0,0.03);
+      }
+      .quality-cat svg {
+        width: 14px;
+        height: 14px;
+        fill: var(--fg-ll);
+        flex-shrink: 0;
+      }
+      .quality-cat-name {
+        font-size: 0.48rem;
+        color: var(--fg-ll);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+        font-weight: 500;
+      }
+      .quality-dots {
+        display: flex;
+        gap: 3px;
+      }
+      .quality-dots .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--fg-lll);
+        transition: background 0.3s;
+      }
+      .quality-dots .dot.on { background: #3eab6a; }
+      .quality-dots .dot.med { background: #e0a820; }
+      .quality-dots .dot.low { background: #d45; }
+      /* Tooltip */
+      .quality-cat .q-tip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(40,40,40,0.95);
+        color: #eee;
+        font-size: 0.5rem;
+        line-height: 1.5;
+        padding: 0.35rem 0.5rem;
+        border-radius: 0.25rem;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+      }
+      .quality-cat .q-tip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(40,40,40,0.95);
+      }
+      .quality-cat:hover .q-tip {
+        display: block;
+      }
+
+      /* ── Share ── */
+      #shareArea {
+        background: var(--bg);
+        border-radius: 0.6rem;
+        padding: 1.2rem;
+        margin-top: 0.75rem;
+        display: none;
+        opacity: 0;
+        transform: translateY(12px);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.05);
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s var(--ease-out);
+      }
+      #shareArea.show {
+        opacity: 1;
+        transform: none;
+      }
+      #shareArea h3 {
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0.6rem;
+        color: var(--fg-l);
+      }
+      #resultsURL {
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        border-radius: 0.35rem;
+        background: var(--bg2);
+        border: 1px solid var(--fg-lll);
+        color: var(--fg);
+        font-family: "Roboto Mono", monospace;
+        font-size: 0.65rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      #resultsURL:focus {
+        border-color: var(--pri);
+      }
+
+      /* ── Footer ── */
+      .foot {
+        background: var(--foot);
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .foot-in {
+        max-width: 61rem;
+        margin: 0 auto;
+        padding: 0.8rem 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.64rem;
+      }
+      .foot a {
+        color: rgba(255, 255, 255, 0.45);
+        text-decoration: none;
+        transition: color 0.125s;
+      }
+      .foot a:hover {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .foot-meta {
+        display: flex;
+        gap: 1.2rem;
+        align-items: center;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 44.9375em) {
+        .hdr-in {
+          padding: 0 0.4rem;
+        }
+        .main-in {
+          padding: 0.8rem 0.5rem;
+        }
+        .res-hero {
+          grid-template-columns: 1fr;
+        }
+        .res-val {
+          font-size: 2.4rem;
+        }
+        .res-strip {
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
+        }
+        .res-stat.ip {
+          grid-column: 1 / -1;
+        }
+        .tabs-in {
+          padding: 0 0.4rem;
+        }
+        .foot-in {
+          flex-direction: column;
+          gap: 0.3rem;
+          text-align: center;
+        }
+        .gauge-wrap {
+          width: 220px;
+          height: 145px;
+        }
+        .gauge-num {
+          font-size: 1.8rem;
+        }
+        .hero {
+          padding: 2rem 0 1rem;
+        }
+        .hero.compact {
+          padding: 1rem 0 0.3rem;
+        }
+        .hero h1 {
+          font-size: 1.4rem;
+        }
+        .hero.compact h1 {
+          font-size: 1.1rem;
+        }
+        .quality-strip {
+          flex-wrap: wrap;
+          padding: 0.4rem 0.5rem;
+          gap: 0.3rem;
+        }
+        .quality-cats {
+          flex-wrap: wrap;
+          gap: 0;
+          justify-content: space-between;
+        }
+        .quality-cat {
+          min-width: 0;
+          flex: 1;
+          padding: 0.25rem 0.2rem;
+        }
+        .quality-cat .q-tip {
+          left: 0;
+          transform: none;
+        }
+      }
+    </style>
+
+    <script>
+      function I(i) {
+        return document.getElementById(i);
+      }
+
+      /* ══════ Speedtest Setup ══════ */
+      var SPEEDTEST_SERVERS = [];
+      var s = new Speedtest();
+      s.setParameter("telemetry_level", "basic");
+
+      function initServers() {
+        if (SPEEDTEST_SERVERS.length === 0) {
+          I("loading").style.display = "none";
+          I("serverArea").style.display = "none";
+          I("testWrapper").className = "visible";
+          initUI();
+        } else {
+          var noSrv = function () {
+            I("message").textContent = "Keine Server verfügbar";
+          };
+          var runSel = function () {
+            s.selectServer(function (srv) {
+              if (srv != null) {
+                I("loading").style.display = "none";
+                var sel = I("server");
+                for (var i = 0; i < SPEEDTEST_SERVERS.length; i++) {
+                  if (SPEEDTEST_SERVERS[i].pingT === -1) continue;
+                  var o = document.createElement("option");
+                  o.value = i;
+                  o.textContent = SPEEDTEST_SERVERS[i].name;
+                  if (SPEEDTEST_SERVERS[i] === srv) o.selected = true;
+                  sel.appendChild(o);
+                }
+                I("testWrapper").className = "visible";
+                initUI();
+              } else noSrv();
+            });
+          };
+          if (typeof SPEEDTEST_SERVERS === "string") {
+            s.loadServerList(SPEEDTEST_SERVERS, function (srvs) {
+              if (srvs == null) noSrv();
+              else {
+                SPEEDTEST_SERVERS = srvs;
+                runSel();
+              }
+            });
+          } else {
+            s.addTestPoints(SPEEDTEST_SERVERS);
+            runSel();
+          }
+        }
+      }
+
+      /* ══════ Graph Data ══════ */
+      function createGS() {
+        return { data: [], max: 1 };
+      }
+      var graphs = { dl: createGS(), ul: createGS(), ping: createGS(), jitter: createGS() };
+
+      function pushG(st, val) {
+        st.data.push(val);
+        var m = 0;
+        for (var i = 0; i < st.data.length; i++) if (st.data[i] > m) m = st.data[i];
+        st.max = Math.max(m * 1.15, 1);
+      }
+
+      function resetGraphs() {
+        graphs = { dl: createGS(), ul: createGS(), ping: createGS(), jitter: createGS() };
+      }
+
+      /* ══════ Smooth Graph Drawing (Catmull-Rom) ══════ */
+      function drawGraph(canvas, data, max, color, softColor) {
+        var ctx = canvas.getContext("2d");
+        var dp = window.devicePixelRatio || 1;
+        var w = canvas.clientWidth,
+          h = canvas.clientHeight;
+        if (w < 4 || h < 4) return;
+        canvas.width = w * dp;
+        canvas.height = h * dp;
+        ctx.setTransform(dp, 0, 0, dp, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+
+        // grid
+        ctx.strokeStyle = "rgba(0,0,0,0.05)";
+        ctx.lineWidth = 0.5;
+        for (var g = 1; g < 4; g++) {
+          ctx.beginPath();
+          ctx.moveTo(0, (h * g) / 4);
+          ctx.lineTo(w, (h * g) / 4);
+          ctx.stroke();
+        }
+
+        var n = data.length;
+        if (n < 2) return;
+
+        var px = 3,
+          py = 3,
+          gw = w - px * 2,
+          gh = h - py * 2;
+
+        // map to pixel coords
+        var pts = [];
+        for (var i = 0; i < n; i++) {
+          pts.push({
+            x: px + (n === 1 ? gw / 2 : (i / (n - 1)) * gw),
+            y: py + gh - Math.min(Math.max(data[i], 0) / max, 1) * gh
+          });
+        }
+
+        // Catmull-Rom -> Bezier control points
+        function cp(p0, p1, p2, p3) {
+          return {
+            c1: { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 },
+            c2: { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 }
+          };
+        }
+
+        function traceCurve() {
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (var i = 0; i < n - 1; i++) {
+            var p0 = pts[Math.max(0, i - 1)],
+              p1 = pts[i],
+              p2 = pts[i + 1],
+              p3 = pts[Math.min(n - 1, i + 2)];
+            var c = cp(p0, p1, p2, p3);
+            // clamp control points vertically to prevent overshoot
+            c.c1.y = Math.max(py, Math.min(py + gh, c.c1.y));
+            c.c2.y = Math.max(py, Math.min(py + gh, c.c2.y));
+            ctx.bezierCurveTo(c.c1.x, c.c1.y, c.c2.x, c.c2.y, p2.x, p2.y);
+          }
+        }
+
+        // filled area
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, py + gh);
+        ctx.lineTo(pts[0].x, pts[0].y);
+        for (var i = 0; i < n - 1; i++) {
+          var p0 = pts[Math.max(0, i - 1)],
+            p1 = pts[i],
+            p2 = pts[i + 1],
+            p3 = pts[Math.min(n - 1, i + 2)];
+          var c = cp(p0, p1, p2, p3);
+          c.c1.y = Math.max(py, Math.min(py + gh, c.c1.y));
+          c.c2.y = Math.max(py, Math.min(py + gh, c.c2.y));
+          ctx.bezierCurveTo(c.c1.x, c.c1.y, c.c2.x, c.c2.y, p2.x, p2.y);
+        }
+        ctx.lineTo(pts[n - 1].x, py + gh);
+        ctx.closePath();
+        ctx.fillStyle = softColor;
+        ctx.fill();
+
+        // line
+        ctx.beginPath();
+        traceCurve();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // endpoint glow + dot
+        var lp = pts[n - 1];
+        ctx.beginPath();
+        ctx.arc(lp.x, lp.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = softColor;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(lp.x, lp.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
+
+      /* ══════ Gauge Drawing ══════ */
+      var gaugeValue = 0,
+        gaugeTarget = 0,
+        gaugePeak = 0,
+        gaugeMax = 100;
+      var gaugeMaxDisplay = 100; // smoothly animated version of gaugeMax
+      var gaugeColor = "var(--c-dl)";
+      var gaugeColorHex = "#6d8f2e";
+
+      function niceMax(v) {
+        if (v <= 5) return 10;
+        var st = [10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000];
+        for (var i = 0; i < st.length; i++) if (v <= st[i]) return st[i];
+        return Math.ceil(v / 1000) * 1000;
+      }
+
+      function meaningfulSteps(max) {
+        // Return array of meaningful labeled values for the gauge scale
+        if (max <= 10) return [0, 2.5, 5, 7.5, 10];
+        if (max <= 20) return [0, 5, 10, 15, 20];
+        if (max <= 25) return [0, 5, 10, 25];
+        if (max <= 50) return [0, 10, 25, 50];
+        if (max <= 100) return [0, 10, 25, 50, 100];
+        if (max <= 200) return [0, 25, 50, 100, 200];
+        if (max <= 250) return [0, 50, 100, 250];
+        if (max <= 500) return [0, 50, 100, 250, 500];
+        if (max <= 1000) return [0, 100, 250, 500, 1000];
+        if (max <= 2000) return [0, 250, 500, 1000, 2000];
+        if (max <= 2500) return [0, 500, 1000, 2500];
+        if (max <= 5000) return [0, 500, 1000, 2500, 5000];
+        if (max <= 10000) return [0, 1000, 2500, 5000, 10000];
+        return [0, Math.round(max / 4), Math.round(max / 2), Math.round((max * 3) / 4), max];
+      }
+
+      function drawGauge() {
+        var canvas = I("gaugeCanvas");
+        var ctx = canvas.getContext("2d");
+        var dp = window.devicePixelRatio || 1;
+        var w = canvas.clientWidth,
+          h = canvas.clientHeight;
+        if (w < 10 || h < 10) return;
+        canvas.width = w * dp;
+        canvas.height = h * dp;
+        ctx.setTransform(dp, 0, 0, dp, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+
+        var cx = w / 2,
+          cy = h - 8;
+        var r = Math.min(w / 2 - 24, h - 22);
+        var lw = 10;
+
+        // background arc (upper semicircle: clockwise from left through top to right)
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI, false);
+        ctx.strokeStyle = "rgba(0,0,0,0.06)";
+        ctx.lineWidth = lw;
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        // meaningful scale steps
+        var effectiveMax = Math.round(gaugeMaxDisplay);
+        var scaleSteps = meaningfulSteps(effectiveMax);
+        ctx.lineWidth = 1;
+        for (var si = 0; si < scaleSteps.length; si++) {
+          var frac_t = scaleSteps[si] / effectiveMax;
+          var a = Math.PI + frac_t * Math.PI;
+          var inner = r - lw / 2 - 2,
+            outer = r + lw / 2 + 2;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
+          ctx.lineTo(cx + Math.cos(a) * outer, cy + Math.sin(a) * outer);
+          ctx.strokeStyle =
+            scaleSteps[si] === 0 || scaleSteps[si] === gaugeMax ? "rgba(0,0,0,0.12)" : "rgba(0,0,0,0.15)";
+          ctx.stroke();
+          // label
+          var lr = r + lw / 2 + 13;
+          var lx = cx + Math.cos(a) * lr;
+          var ly = cy + Math.sin(a) * lr;
+          ctx.font = "500 8.5px Roboto, sans-serif";
+          // align labels so edge ones don't clip
+          if (frac_t < 0.15) ctx.textAlign = "left";
+          else if (frac_t > 0.85) ctx.textAlign = "right";
+          else ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "rgba(0,0,0,0.3)";
+          ctx.fillText(scaleSteps[si], lx, ly);
+        }
+        // minor ticks between major ones
+        for (var mt = 1; mt <= 20; mt++) {
+          var mfrac = mt / 20;
+          var skip = false;
+          for (var sk = 0; sk < scaleSteps.length; sk++) {
+            if (Math.abs(scaleSteps[sk] / effectiveMax - mfrac) < 0.02) {
+              skip = true;
+              break;
+            }
+          }
+          if (skip) continue;
+          var ma = Math.PI + mfrac * Math.PI;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(ma) * (r - lw / 2), cy + Math.sin(ma) * (r - lw / 2));
+          ctx.lineTo(cx + Math.cos(ma) * (r + lw / 2), cy + Math.sin(ma) * (r + lw / 2));
+          ctx.strokeStyle = "rgba(0,0,0,0.04)";
+          ctx.stroke();
+        }
+
+        // value arc
+        var frac = Math.min(Math.max(gaugeValue / gaugeMaxDisplay, 0), 1);
+        if (frac > 0.003) {
+          // gradient along arc
+          var endA = Math.PI + frac * Math.PI;
+          var grd = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
+          grd.addColorStop(0, gaugeColorHex + "cc");
+          grd.addColorStop(1, gaugeColorHex);
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, Math.PI, endA, false);
+          ctx.strokeStyle = grd;
+          ctx.lineWidth = lw;
+          ctx.lineCap = "round";
+          ctx.stroke();
+        }
+
+        // needle
+        var needleFrac = Math.min(Math.max(gaugeValue / gaugeMaxDisplay, 0), 1);
+        var needleAngle = Math.PI + needleFrac * Math.PI;
+        var needleLen = r * 0.7;
+        var needleBase = 12;
+        var nx = cx + Math.cos(needleAngle) * needleLen,
+          ny = cy + Math.sin(needleAngle) * needleLen;
+        var bx = cx + Math.cos(needleAngle) * needleBase,
+          by = cy + Math.sin(needleAngle) * needleBase;
+
+        // thin line needle with rounded cap
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(nx, ny);
+        ctx.strokeStyle = gaugeColorHex + "55";
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        // center hub
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+        ctx.strokeStyle = gaugeColorHex + "66";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = gaugeColorHex + "88";
+        ctx.fill();
+
+        // color zone indicator behind arc (subtle gradient sectors)
+        // green zone = 0-50%, yellow = 50-80%, red = 80-100% (for ping, reversed for speed)
+        var zr = r - lw / 2 - 14;
+        if (zr > 20) {
+          var zones = [
+            { f: 0, t: 0.5, c: "rgba(77,213,153,0.08)" },
+            { f: 0.5, t: 0.8, c: "rgba(240,192,64,0.07)" },
+            { f: 0.8, t: 1, c: "rgba(224,85,85,0.06)" }
+          ];
+          for (var zi = 0; zi < zones.length; zi++) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, zr, Math.PI + zones[zi].f * Math.PI, Math.PI + zones[zi].t * Math.PI, false);
+            ctx.strokeStyle = zones[zi].c;
+            ctx.lineWidth = 8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      /* ══════ UI State ══════ */
+      var uiData = null;
+      var lastPhase = -1;
+      var testRunning = false;
+      var resultsShown = false;
+      var hasTestedOnce = false;
+      var phaseNames = {
+        0: "Initialisierung",
+        1: "Download",
+        2: "Latenz",
+        3: "Upload",
+        4: "Abgeschlossen",
+        5: "Abgebrochen"
+      };
+
+      function format(d) {
+        d = Number(d);
+        if (d < 10) return d.toFixed(2);
+        if (d < 100) return d.toFixed(1);
+        return d.toFixed(0);
+      }
+
+      function startStop() {
+        if (s.getState() === 3) {
+          // abort
+          s.abort();
+          uiData = null;
+          endTest(true);
+          return;
+        }
+        // start
+        resetGraphs();
+        testRunning = true;
+        resultsShown = false;
+        lastPhase = -1;
+        gaugeValue = 0;
+        gaugeTarget = 0;
+        gaugePeak = 0;
+        gaugeMax = 100;
+        gaugeMaxDisplay = 100;
+
+        I("startBtn").className = "abort";
+        I("startBtn").textContent = "ABBRECHEN";
+        I("hero").classList.add("compact");
+        I("gaugeSec").classList.add("on");
+        I("prog").classList.add("on");
+        I("ipRow").classList.add("show");
+        I("results").classList.remove("on");
+        I("shareArea").style.display = "none";
+        I("shareArea").classList.remove("show");
+        I("quality").classList.remove("show");
+
+        // hide result cards
+        var cards = document.querySelectorAll(".res-panel,.res-stat");
+        for (var i = 0; i < cards.length; i++) cards[i].classList.remove("show");
+
+        I("server").disabled = true;
+        s.onupdate = function (data) {
+          uiData = data;
+        };
+        s.onend = function (aborted) {
+          endTest(aborted);
+        };
+        s.start();
+      }
+
+      function endTest(aborted) {
+        testRunning = false;
+        I("startBtn").className = "";
+        I("server").disabled = false;
+
+        if (!aborted && uiData) {
+          hasTestedOnce = true;
+          I("startBtn").textContent = "NEUSTART";
+          // populate final values
+          I("dlText").textContent = format(uiData.dlStatus);
+          I("ulText").textContent = format(uiData.ulStatus);
+          I("pingText").textContent = format(uiData.pingStatus);
+          I("jitText").textContent = format(uiData.jitterStatus);
+          I("ip").textContent = uiData.clientIp;
+          I("ipResult").textContent = uiData.clientIp;
+
+          // fade gauge out, show results
+          I("gaugeSec").classList.remove("on");
+
+          setTimeout(function () {
+            I("results").classList.add("on");
+            // stagger cards
+            var cards = document.querySelectorAll(".res-panel,.res-stat");
+            for (var ci = 0; ci < cards.length; ci++) {
+              (function (card, delay) {
+                setTimeout(function () {
+                  card.classList.add("show");
+                }, delay);
+              })(cards[ci], ci * 120);
+            }
+            // draw graphs after cards have layout
+            setTimeout(drawAllGraphs, 80);
+            // show quality indicator
+            setTimeout(function () {
+              computeQuality(
+                Number(uiData.dlStatus),
+                Number(uiData.ulStatus),
+                Number(uiData.pingStatus),
+                Number(uiData.jitterStatus)
+              );
+              I("quality").classList.add("show");
+            }, 600);
+          }, 350);
+
+          // share
+          try {
+            var tid = uiData.testId;
+            if (tid != null) {
+              var u = window.location.href.substring(0, window.location.href.lastIndexOf("/")) + "/results/?id=" + tid;
+              I("resultsImg").src = u;
+              I("resultsImg").alt = "Results";
+              I("resultsURL").value = u;
+              I("testId").textContent = tid;
+              I("shareArea").style.display = "";
+              setTimeout(function () {
+                I("shareArea").classList.add("show");
+              }, 800);
+            }
+          } catch (e) {}
+        } else {
+          // aborted - go back to initial state
+          I("hero").classList.remove("compact");
+          I("gaugeSec").classList.remove("on");
+          I("prog").classList.remove("on");
+          I("ipRow").classList.remove("show");
+          I("quality").classList.remove("show");
+          I("startBtn").textContent = hasTestedOnce ? "NEUSTART" : "TEST STARTEN";
+          initUI();
+        }
+      }
+
+      function drawAllGraphs() {
+        drawGraph(I("dlGraph"), graphs.dl.data, graphs.dl.max, "#6d8f2e", "rgba(109,143,46,0.18)");
+        drawGraph(I("ulGraph"), graphs.ul.data, graphs.ul.max, "#4a8a32", "rgba(74,138,50,0.18)");
+        drawGraph(I("pingGraph"), graphs.ping.data, graphs.ping.max, "#9a8e20", "rgba(154,142,32,0.15)");
+        drawGraph(I("jitGraph"), graphs.jitter.data, graphs.jitter.max, "#a06528", "rgba(160,101,40,0.15)");
+      }
+
+      function computeProgress(d) {
+        if (!d) return 0;
+        var st = d.testState;
+        if (st <= 0) return 0;
+        if (st === 1) return Number(d.dlProgress) * 0.33;
+        if (st === 2) return 0.33 + Number(d.pingProgress) * 0.33;
+        if (st === 3) return 0.66 + Number(d.ulProgress) * 0.34;
+        return 1;
+      }
+
+      function handlePhaseChange(phase) {
+        if (phase === lastPhase) return;
+        lastPhase = phase;
+        gaugePeak = 0;
+        gaugeTarget = 0;
+
+        if (phase === 1) {
+          gaugeColorHex = "#6d8f2e";
+          I("gaugePhase").textContent = "Download";
+          I("gaugeUnit").textContent = "Mbit/s";
+          I("gaugeNum").style.color = "#6d8f2e";
+        } else if (phase === 2) {
+          gaugeColorHex = "#9a8e20";
+          I("gaugePhase").textContent = "Latenz";
+          I("gaugeUnit").textContent = "ms";
+          I("gaugeNum").style.color = "#9a8e20";
+        } else if (phase === 3) {
+          gaugeColorHex = "#4a8a32";
+          I("gaugePhase").textContent = "Upload";
+          I("gaugeUnit").textContent = "Mbit/s";
+          I("gaugeNum").style.color = "#4a8a32";
+        }
+      }
+
+      function updateUI() {
+        if (!testRunning || !uiData) return;
+        var st = uiData.testState;
+
+        handlePhaseChange(st);
+
+        // current value for gauge
+        var curVal = 0;
+        if (st === 1) curVal = Number(uiData.dlStatus);
+        else if (st === 2) curVal = Number(uiData.pingStatus);
+        else if (st === 3) curVal = Number(uiData.ulStatus);
+
+        gaugeTarget = curVal;
+        if (curVal > gaugePeak) gaugePeak = curVal;
+        gaugeMax = niceMax(gaugePeak);
+
+        // push graph data
+        if (st === 1) pushG(graphs.dl, Number(uiData.dlStatus));
+        if (st === 3) pushG(graphs.ul, Number(uiData.ulStatus));
+        if (st >= 2) {
+          pushG(graphs.ping, Number(uiData.pingStatus));
+          pushG(graphs.jitter, Number(uiData.jitterStatus));
+        }
+
+        // IP
+        I("ip").textContent = uiData.clientIp || "";
+
+        // progress
+        var pct = computeProgress(uiData);
+        I("progFill").style.width = pct * 100 + "%";
+        I("progPct").textContent = Math.round(pct * 100) + "%";
+        I("progLbl").textContent = phaseNames[st] || "";
+      }
+
+      /* ══════ Animation Frame Loop ══════ */
+      function frame() {
+        requestAnimationFrame(frame);
+
+        if (!testRunning) return;
+        updateUI();
+
+        // smooth gauge interpolation
+        gaugeValue += (gaugeTarget - gaugeValue) * 0.35;
+        if (Math.abs(gaugeValue - gaugeTarget) < 0.05) gaugeValue = gaugeTarget;
+
+        // fast scale snap with ease-out
+        var scaleDiff = gaugeMax - gaugeMaxDisplay;
+        if (Math.abs(scaleDiff) > 0.5) {
+          gaugeMaxDisplay += scaleDiff * 0.45;
+        } else {
+          gaugeMaxDisplay = gaugeMax;
+        }
+
+        drawGauge();
+
+        // update gauge number display
+        var displayVal = gaugeValue;
+        if (displayVal < 10) I("gaugeNum").textContent = displayVal.toFixed(1);
+        else I("gaugeNum").textContent = Math.round(displayVal).toString();
+      }
+      frame();
+
+      /* ══════ Quality Scoring ══════ */
+      function computeQuality(dl, ul, ping, jitter) {
+        /*
+         * 3-dot scoring. Each dot has a specific requirement:
+         *
+         * SURFEN (Browsing):
+         *   Dot 1: DL ≥ 2 Mbit/s  AND  Ping ≤ 100 ms
+         *   Dot 2: DL ≥ 10 Mbit/s AND  Ping ≤ 50 ms
+         *   Dot 3: DL ≥ 25 Mbit/s AND  Ping ≤ 20 ms
+         *
+         * MUSIK (Music Streaming):
+         *   Dot 1: DL ≥ 1 Mbit/s  AND  Ping ≤ 200 ms
+         *   Dot 2: DL ≥ 5 Mbit/s  AND  Ping ≤ 100 ms
+         *   Dot 3: DL ≥ 15 Mbit/s AND  Ping ≤ 50 ms
+         *
+         * GAMING:
+         *   Dot 1: DL ≥ 5 Mbit/s  AND  Ping ≤ 60 ms   AND  Jitter ≤ 30 ms
+         *   Dot 2: DL ≥ 15 Mbit/s AND  Ping ≤ 25 ms   AND  Jitter ≤ 10 ms
+         *   Dot 3: DL ≥ 30 Mbit/s AND  Ping ≤ 10 ms   AND  Jitter ≤ 3 ms
+         *
+         * STREAM (Video Streaming):
+         *   Dot 1: DL ≥ 5 Mbit/s  AND  Ping ≤ 100 ms
+         *   Dot 2: DL ≥ 25 Mbit/s AND  Ping ≤ 50 ms
+         *   Dot 3: DL ≥ 50 Mbit/s AND  Ping ≤ 25 ms
+         *
+         * ANRUFE (Video Calls):
+         *   Dot 1: DL ≥ 2 Mbit/s  AND  UL ≥ 1 Mbit/s  AND  Ping ≤ 100 ms
+         *   Dot 2: DL ≥ 5 Mbit/s  AND  UL ≥ 3 Mbit/s  AND  Ping ≤ 50 ms
+         *   Dot 3: DL ≥ 15 Mbit/s AND  UL ≥ 5 Mbit/s  AND  Ping ≤ 20 ms
+         */
+
+        var cats = [
+          {
+            id: 'qBrowse', tipId: 'qtBrowse',
+            tiers: [
+              { check: dl >= 2 && ping <= 100,   tip: '\u2265 2 Mbit/s DL, \u2264 100 ms Ping' },
+              { check: dl >= 10 && ping <= 50,    tip: '\u2265 10 Mbit/s DL, \u2264 50 ms Ping' },
+              { check: dl >= 25 && ping <= 20,    tip: '\u2265 25 Mbit/s DL, \u2264 20 ms Ping' }
+            ]
+          },
+          {
+            id: 'qMusic', tipId: 'qtMusic',
+            tiers: [
+              { check: dl >= 1 && ping <= 200,    tip: '\u2265 1 Mbit/s DL, \u2264 200 ms Ping' },
+              { check: dl >= 5 && ping <= 100,     tip: '\u2265 5 Mbit/s DL, \u2264 100 ms Ping' },
+              { check: dl >= 15 && ping <= 50,     tip: '\u2265 15 Mbit/s DL, \u2264 50 ms Ping' }
+            ]
+          },
+          {
+            id: 'qGaming', tipId: 'qtGaming',
+            tiers: [
+              { check: dl >= 5 && ping <= 60 && jitter <= 30,   tip: '\u2265 5 Mbit/s DL, \u2264 60 ms Ping, \u2264 30 ms Jitter' },
+              { check: dl >= 15 && ping <= 25 && jitter <= 10,   tip: '\u2265 15 Mbit/s DL, \u2264 25 ms Ping, \u2264 10 ms Jitter' },
+              { check: dl >= 30 && ping <= 10 && jitter <= 3,    tip: '\u2265 30 Mbit/s DL, \u2264 10 ms Ping, \u2264 3 ms Jitter' }
+            ]
+          },
+          {
+            id: 'qStream', tipId: 'qtStream',
+            tiers: [
+              { check: dl >= 5 && ping <= 100,     tip: '\u2265 5 Mbit/s DL, \u2264 100 ms Ping' },
+              { check: dl >= 25 && ping <= 50,      tip: '\u2265 25 Mbit/s DL, \u2264 50 ms Ping' },
+              { check: dl >= 50 && ping <= 25,      tip: '\u2265 50 Mbit/s DL, \u2264 25 ms Ping' }
+            ]
+          },
+          {
+            id: 'qVideo', tipId: 'qtVideo',
+            tiers: [
+              { check: dl >= 2 && ul >= 1 && ping <= 100,   tip: '\u2265 2 DL, \u2265 1 UL Mbit/s, \u2264 100 ms Ping' },
+              { check: dl >= 5 && ul >= 3 && ping <= 50,     tip: '\u2265 5 DL, \u2265 3 UL Mbit/s, \u2264 50 ms Ping' },
+              { check: dl >= 15 && ul >= 5 && ping <= 20,    tip: '\u2265 15 DL, \u2265 5 UL Mbit/s, \u2264 20 ms Ping' }
+            ]
+          }
+        ];
+
+        for (var i = 0; i < cats.length; i++) {
+          var cat = cats[i];
+          var score = 0;
+          for (var t = 0; t < cat.tiers.length; t++) {
+            if (cat.tiers[t].check) score = t + 1;
+            else break;
+          }
+          // color dots
+          var dots = document.querySelectorAll('#' + cat.id + ' .dot');
+          for (var d = 0; d < dots.length; d++) {
+            dots[d].className = 'dot';
+            if (d < score) {
+              if (score === 3) dots[d].classList.add('on');
+              else if (score === 2) dots[d].classList.add('med');
+              else dots[d].classList.add('low');
+            }
+          }
+          // build tooltip showing what each dot requires and whether it's met
+          var tipLines = [];
+          for (var t = 0; t < cat.tiers.length; t++) {
+            var met = (t < score);
+            tipLines.push((met ? '\u2713' : '\u2717') + ' Stufe ' + (t+1) + ': ' + cat.tiers[t].tip);
+          }
+          I(cat.tipId).innerHTML = tipLines.join('<br>');
+        }
+      }
+
+      /* ══════ Init ══════ */
+      function initUI() {
+        I("dlText").textContent = "";
+        I("ulText").textContent = "";
+        I("pingText").textContent = "";
+        I("jitText").textContent = "";
+        I("ip").textContent = "";
+        I("progFill").style.width = "0%";
+        I("progPct").textContent = "0%";
+        I("progLbl").textContent = "Bereit";
+        I("gaugeNum").textContent = "0";
+        I("gaugeNum").style.color = "var(--fg)";
+        I("gaugePhase").textContent = "";
+        I("gaugeUnit").textContent = "Mbit/s";
+        I("startBtn").className = "";
+        if (!hasTestedOnce) I("startBtn").textContent = "TEST STARTEN";
+
+        // clear graph canvases
+        var ids = ["dlGraph", "ulGraph", "pingGraph", "jitGraph", "gaugeCanvas"];
+        for (var i = 0; i < ids.length; i++) {
+          var c = I(ids[i]);
+          if (!c) continue;
+          var ctx = c.getContext("2d");
+          var dp = window.devicePixelRatio || 1;
+          if (c.clientWidth > 0 && c.clientHeight > 0) {
+            c.width = c.clientWidth * dp;
+            c.height = c.clientHeight * dp;
+            ctx.clearRect(0, 0, c.width, c.height);
+          }
+        }
+      }
+    </script>
+  </head>
+  <body onload="initServers()">
+    <!-- Header -->
+    <header class="hdr">
+      <div class="hdr-in">
+        <a href="https://www.wobcom.net/" target="_blank" rel="noopener">
+          <img src="https://www.wobcom.net/images/logo_white.svg" alt="WOBCOM" />
+        </a>
+        <div class="hdr-title">Geschwindigkeitstest</div>
+        <div id="serverArea">
+          <select id="server" onchange="s.setSelectedServer(SPEEDTEST_SERVERS[this.value])"></select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="tabs">
+      <div class="tabs-in">
+        <a href="https://wobcom.net/" target="_blank" rel="noopener">ISP-Seite</a>
+        <a class="on">Speedtest</a>
+        <a href="https://wobcom.net/communities/" target="_blank" rel="noopener">BGP Communities</a>
+      </div>
+    </nav>
+
+    <!-- Loading -->
+    <div id="loading" style="display: flex">
+      <div class="spin"></div>
+      <div id="message">Server wird ausgewählt...</div>
+    </div>
+
+    <!-- Main -->
+    <div class="wrap">
+      <main class="main">
+        <div class="main-in">
+          <div class="content" id="testWrapper">
+            <!-- Hero -->
+            <div class="hero" id="hero">
+              <h1>AS9136 Speedtest</h1>
+              <p class="hero-sub">Messen Sie Ihre Verbindungsgeschwindigkeit zum WOBCOM-Netzwerk</p>
+              <div class="btn-wrap">
+                <button id="startBtn" onclick="startStop()">TEST STARTEN</button>
+              </div>
+              <div class="ip-row" id="ipRow">
+                <span class="ip-lbl">Ihre IP</span>
+                <span class="ip-val" id="ip"></span>
+              </div>
+            </div>
+
+            <!-- Gauge -->
+            <div class="gauge-sec" id="gaugeSec">
+              <div class="gauge-phase" id="gaugePhase"></div>
+              <div class="gauge-wrap">
+                <canvas id="gaugeCanvas" width="280" height="175"></canvas>
+                <div class="gauge-over">
+                  <span class="gauge-num" id="gaugeNum">0</span>
+                  <span class="gauge-unit" id="gaugeUnit">Mbit/s</span>
+                </div>
+              </div>
+              <div class="prog" id="prog">
+                <span class="prog-lbl" id="progLbl">Bereit</span>
+                <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+                <span class="prog-pct" id="progPct">0%</span>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+              <div class="res-hero">
+                <div class="res-panel dl" id="dlCard">
+                  <div class="res-head">
+                    <div class="res-icon">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 16l-6-6h4V4h4v6h4l-6 6z" />
+                        <path d="M4 18h16v2H4z" />
+                      </svg>
+                    </div>
+                    <span class="res-lbl">Download</span>
+                  </div>
+                  <div class="res-val" id="dlText"></div>
+                  <span class="res-unit">Mbit/s</span>
+                  <div class="res-graph"><canvas id="dlGraph"></canvas></div>
+                </div>
+                <div class="res-panel ul" id="ulCard">
+                  <div class="res-head">
+                    <div class="res-icon">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 8l6 6h-4v6h-4v-6H6l6-6z" />
+                        <path d="M4 4h16v2H4z" />
+                      </svg>
+                    </div>
+                    <span class="res-lbl">Upload</span>
+                  </div>
+                  <div class="res-val" id="ulText"></div>
+                  <span class="res-unit">Mbit/s</span>
+                  <div class="res-graph"><canvas id="ulGraph"></canvas></div>
+                </div>
+              </div>
+
+              <div class="res-strip">
+                <div class="res-stat ping" id="pingCard">
+                  <div class="res-stat-lbl">Ping</div>
+                  <div class="res-stat-vr">
+                    <span class="res-stat-v" id="pingText"></span>
+                    <span class="res-stat-u">ms</span>
+                  </div>
+                  <div class="res-stat-g"><canvas id="pingGraph"></canvas></div>
+                </div>
+                <div class="res-stat jitter" id="jitCard">
+                  <div class="res-stat-lbl">Jitter</div>
+                  <div class="res-stat-vr">
+                    <span class="res-stat-v" id="jitText"></span>
+                    <span class="res-stat-u">ms</span>
+                  </div>
+                  <div class="res-stat-g"><canvas id="jitGraph"></canvas></div>
+                </div>
+                <div class="res-stat ip" id="ipCard">
+                  <div class="res-stat-lbl">Ihre IP</div>
+                  <div class="res-stat-vr">
+                    <span class="res-stat-v" id="ipResult"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quality Strip -->
+              <div class="quality-strip" id="quality">
+                <span class="quality-strip-label">Qualität</span>
+                <div class="quality-cats">
+                  <div class="quality-cat" id="qBrowse">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <span class="quality-cat-name">Surfen</span>
+                    <div class="q-tip" id="qtBrowse"></div>
+                  </div>
+                  <div class="quality-cat" id="qMusic">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <span class="quality-cat-name">Musik</span>
+                    <div class="q-tip" id="qtMusic"></div>
+                  </div>
+                  <div class="quality-cat" id="qGaming">
+                    <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <span class="quality-cat-name">Gaming</span>
+                    <div class="q-tip" id="qtGaming"></div>
+                  </div>
+                  <div class="quality-cat" id="qStream">
+                    <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7l7 4z"/></svg>
+                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <span class="quality-cat-name">Stream</span>
+                    <div class="q-tip" id="qtStream"></div>
+                  </div>
+                  <div class="quality-cat" id="qVideo">
+                    <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                    <div class="quality-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <span class="quality-cat-name">Anrufe</span>
+                    <div class="q-tip" id="qtVideo"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="shareArea">
+                <h3>Ergebnisse teilen</h3>
+                <p style="font-size: 0.7rem; color: rgba(0, 0, 0, 0.54); margin-bottom: 0.4rem">
+                  Test-ID:
+                  <span id="testId"></span>
+                </p>
+                <input
+                  type="text"
+                  value=""
+                  id="resultsURL"
+                  readonly
+                  onclick="
+                    this.select();
+                    document.execCommand('copy');
+                  "
+                />
+                <img src="" id="resultsImg" style="max-width: 100%; border-radius: 0.15rem; margin-top: 0.4rem" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="foot">
+      <div class="foot-in">
+        <span>
+          Erstellt mit
+          <a href="https://github.com/librespeed/speedtest" target="_blank" rel="noopener">LibreSpeed</a>
+        </span>
+        <div class="foot-meta">
+          <a href="https://wobcom.net/" target="_blank" rel="noopener">ISP-Seite</a>
+          <a href="https://www.wobcom.de/" target="_blank" rel="noopener">Wobcom.de</a>
+          <a href="https://www.wobcom.de/impressum/" target="_blank" rel="noopener">Impressum</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

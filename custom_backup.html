@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en" data-md-color-scheme="default" data-md-color-primary="light-green" data-md-color-accent="light-green">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
+<title>AS9136 Speedtest</title>
+<script type="text/javascript" src="speedtest.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   Exact Material for MkDocs "slate" theme - wobcom.net
+   Primary: #it  |  Accent: #813060  |  Hue: 225
+   ═══════════════════════════════════════════════════════ */
+:root {
+    --md-hue: 225deg;
+    --md-primary-fg-color: #a5bd5a;
+    --md-primary-fg-color--light: #b8cc7a;
+    --md-primary-fg-color--dark: #8aa33e;
+    --md-accent-fg-color: #813060;
+
+    /* Default light scheme */
+    --md-default-fg-color: rgba(0,0,0,0.87);
+    --md-default-fg-color--light: rgba(0,0,0,0.54);
+    --md-default-fg-color--lighter: rgba(0,0,0,0.32);
+    --md-default-fg-color--lightest: rgba(0,0,0,0.07);
+    --md-default-bg-color: #fff;
+    --md-default-bg-color--light: rgba(255,255,255,0.7);
+    --md-code-bg-color: #f5f5f5;
+    --md-footer-bg-color: rgba(0,0,0,0.87);
+    --md-footer-bg-color--dark: rgba(0,0,0,0.93);
+    --md-shadow-z2: 0 0.25rem 0.625rem rgba(0,0,0,0.1),0 0 0.0625rem rgba(0,0,0,0.08);
+    --md-typeset-table-color: rgba(0,0,0,0.07);
+
+    /* Speedtest-specific colors (darkened for light bg contrast) */
+    --st-dl: #6d8f2e;
+    --st-dl-soft: rgba(109,143,46,0.15);
+    --st-ul: #4a8a32;
+    --st-ul-soft: rgba(74,138,50,0.15);
+    --st-ping: #9a8e20;
+    --st-ping-soft: rgba(154,142,32,0.12);
+    --st-jitter: #a06528;
+    --st-jitter-soft: rgba(160,101,40,0.12);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{
+    font-size:16px;
+    color-scheme:light;
+    -webkit-text-size-adjust:none;
+    text-size-adjust:none;
+}
+body{
+    width:100%;min-height:100vh;
+    background-color:var(--md-default-bg-color);
+    color:var(--md-default-fg-color);
+    font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    font-feature-settings:"kern","liga";
+    font-size:.8rem;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+}
+
+/* ════════════════════════
+   HEADER — MkDocs style
+   ════════════════════════ */
+.md-header{
+    position:sticky;top:0;left:0;right:0;z-index:4;
+    background-color:var(--md-primary-fg-color);
+    color:hsla(0,0%,100%,1);
+    box-shadow:0 0 .2rem rgba(0,0,0,0),0 .2rem .4rem rgba(0,0,0,0);
+    transition:background-color .25s,color .25s;
+}
+.md-header__inner{
+    display:flex;align-items:center;
+    max-width:61rem;margin:0 auto;
+    padding:0 .6rem;height:3rem;
+}
+.md-header__title{
+    font-size:.9rem;font-weight:700;line-height:3rem;
+    flex-grow:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    margin-left:.4rem;
+}
+.md-header__icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:2.4rem;height:2.4rem;
+    color:currentColor;opacity:.7;
+    cursor:pointer;transition:opacity .25s;
+}
+.md-header__icon:hover{opacity:1;}
+.md-header__icon svg{fill:currentColor;width:1.2rem;height:1.2rem;}
+
+/* ══════════════
+   TABS — MkDocs
+   ══════════════ */
+.md-tabs{
+    background-color:var(--md-primary-fg-color--dark);
+    color:hsla(0,0%,100%,1);
+    overflow:auto;
+    white-space:nowrap;
+}
+.md-tabs__inner{
+    max-width:61rem;margin:0 auto;
+    display:flex;align-items:center;
+    padding:0 .6rem;
+}
+.md-tabs__link{
+    display:block;
+    font-size:.7rem;font-weight:400;
+    line-height:2.4rem;
+    padding:0 .65rem;
+    opacity:.7;
+    color:inherit;text-decoration:none;
+    transition:opacity .25s;
+    cursor:pointer;
+}
+.md-tabs__link:hover,.md-tabs__link.active{opacity:1;}
+
+/* ═════════════════
+   CONTENT AREA
+   ═════════════════ */
+.md-container{
+    display:flex;flex-direction:column;
+    min-height:calc(100vh - 3rem - 2.4rem);
+}
+.md-main{flex-grow:1;}
+.md-main__inner{
+    max-width:61rem;margin:0 auto;
+    padding:1.2rem .6rem;
+}
+.md-content{
+    max-width:45rem;
+}
+
+.md-typeset h1{
+    font-size:1.5625rem;
+    font-weight:300;
+    letter-spacing:-.01em;
+    line-height:1.3;
+    margin:0 0 1.25em;
+    color:var(--md-default-fg-color);
+}
+.md-typeset h2{
+    font-size:.9375rem;
+    font-weight:500;
+    letter-spacing:-.01em;
+    line-height:1.4;
+    margin:1.6em 0 .64em;
+    padding-bottom:.3em;
+    border-bottom:.05rem solid var(--md-default-fg-color--lightest);
+}
+.md-typeset p{
+    margin-bottom:.6em;
+    color:var(--md-default-fg-color--light);
+    font-size:.8rem;
+}
+.md-typeset a{
+    color:var(--md-primary-fg-color--light);
+    text-decoration:none;
+    word-break:break-word;
+    transition:color .125s;
+}
+.md-typeset a:hover{color:var(--md-accent-fg-color);}
+
+/* ═══════════════
+   SERVER SELECT
+   ═══════════════ */
+#serverArea{display:inline-block;margin-left:.4rem;}
+#serverArea select{
+    background:var(--md-code-bg-color);
+    border:1px solid var(--md-default-fg-color--lightest);
+    color:var(--md-default-fg-color);
+    padding:.2rem .5rem;border-radius:.1rem;
+    font-family:'Roboto',sans-serif;font-size:.7rem;outline:none;
+    cursor:pointer;
+}
+#serverArea select:focus{border-color:var(--md-primary-fg-color);}
+
+/* ═══════════
+   LOADING
+   ═══════════ */
+#loading{
+    display:flex;flex-direction:column;align-items:center;
+    justify-content:center;min-height:40vh;gap:.8rem;
+}
+.spinner{
+    width:1.5rem;height:1.5rem;
+    border:2px solid var(--md-default-fg-color--lightest);
+    border-top-color:var(--md-primary-fg-color);
+    border-radius:50%;animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#message{font-size:.8rem;color:var(--md-default-fg-color--light);}
+
+/* ═══════════════
+   TEST WRAPPER
+   ═══════════════ */
+#testWrapper{display:none;}
+#testWrapper.visible{display:block;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ════════════════
+   START BUTTON
+   ════════════════ */
+.start-section{text-align:center;margin:1.6em 0 1.2em;}
+#startStopBtn{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:9rem;height:2.25rem;padding:0 1.5rem;
+    background:var(--md-primary-fg-color);
+    color:hsla(0,0%,100%,1);border:none;
+    border-radius:.1rem;cursor:pointer;
+    font-family:'Roboto',sans-serif;font-size:.7rem;font-weight:700;
+    letter-spacing:.04em;text-transform:uppercase;
+    transition:background .2s,box-shadow .2s,opacity .2s;
+    box-shadow:var(--md-shadow-z2);
+}
+#startStopBtn::before{content:"Start Test";}
+#startStopBtn:hover{opacity:.85;}
+#startStopBtn:active{box-shadow:none;}
+#startStopBtn.running{
+    background:hsla(0,70%,50%,1);
+}
+#startStopBtn.running::before{content:"Abort";}
+#startStopBtn.running:hover{opacity:.85;}
+
+/* ════════════════════
+   PROGRESS BAR
+   ════════════════════ */
+.progress-wrap{
+    margin:0 0 1rem;
+    display:flex;align-items:center;gap:.6rem;
+}
+.progress-label{
+    font-size:.6rem;font-weight:500;color:var(--md-default-fg-color--light);
+    white-space:nowrap;text-transform:uppercase;letter-spacing:.04em;
+    min-width:7em;
+}
+.progress-track{
+    flex:1;height:2px;
+    background:var(--md-default-fg-color--lightest);
+    border-radius:1px;overflow:hidden;
+}
+.progress-fill{
+    height:100%;width:0%;border-radius:1px;
+    background:var(--md-primary-fg-color);
+    transition:width .3s ease;
+}
+.progress-pct{
+    font-size:.6rem;font-weight:500;color:var(--md-default-fg-color--light);
+    font-family:'Roboto Mono',monospace;
+    min-width:2em;text-align:right;
+}
+
+/* ══════════════════════════
+   METRIC CARDS — MkDocs table style
+   ══════════════════════════ */
+.metrics-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.8rem;
+    margin-bottom:.8rem;
+}
+.m-card{
+    background:var(--md-code-bg-color);
+    border-radius:.1rem;
+    padding:.9rem 1rem .7rem;
+    position:relative;overflow:hidden;
+}
+.m-card .m-bar{
+    position:absolute;top:0;left:0;right:0;height:2px;
+}
+.m-card.dl .m-bar{background:#a5bd5a;}
+.m-card.ul .m-bar{background:#7aab5c;}
+
+.m-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    margin-bottom:.5rem;
+}
+.m-label{
+    font-size:.6rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--md-default-fg-color--light);
+}
+.m-val-row{display:flex;align-items:baseline;gap:.25rem;}
+.m-val{
+    font-size:1.7rem;font-weight:300;line-height:1;
+    font-family:'Roboto',sans-serif;letter-spacing:-.02em;
+}
+.m-val:empty::before{content:"—";color:var(--md-default-fg-color--lighter);}
+.m-unit{font-size:.6rem;color:var(--md-default-fg-color--lighter);font-weight:400;}
+.m-card.dl .m-val{color:var(--st-dl);}
+.m-card.ul .m-val{color:var(--st-ul);}
+
+.m-graph{
+    margin-top:.5rem;height:50px;
+    border-radius:.1rem;overflow:hidden;
+    background:var(--md-default-bg-color);
+}
+.m-graph canvas{display:block;width:100%;height:100%;}
+
+/* ══════════════════
+   SMALL STATS ROW
+   ══════════════════ */
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:.8rem;
+    margin-bottom:.8rem;
+}
+.s-card{
+    background:var(--md-code-bg-color);
+    border-radius:.1rem;
+    padding:.7rem .8rem .55rem;
+    position:relative;overflow:hidden;
+}
+.s-card .m-bar{position:absolute;top:0;left:0;right:0;height:2px;}
+.s-card.ping .m-bar{background:#c4b85a;}
+.s-card.jitter .m-bar{background:#bd855a;}
+.s-card.ip-card .m-bar{background:#a5bd5a;}
+
+.s-label{
+    font-size:.55rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--md-default-fg-color--light);
+    margin-bottom:.15rem;
+}
+.s-val-row{display:flex;align-items:baseline;gap:.2rem;}
+.s-val{font-size:1.15rem;font-weight:300;line-height:1;letter-spacing:-.01em;}
+.s-val:empty::before{content:"—";color:var(--md-default-fg-color--lighter);}
+.s-unit{font-size:.55rem;color:var(--md-default-fg-color--lighter);}
+.s-card.ping .s-val{color:var(--st-ping);}
+.s-card.jitter .s-val{color:var(--st-jitter);}
+.s-card.ip-card .s-val{
+    font-size:.7rem;font-weight:400;
+    color:var(--md-default-fg-color--light);
+    font-family:'Roboto Mono',monospace;
+    word-break:break-all;
+}
+
+.s-graph{
+    margin-top:.4rem;height:30px;
+    border-radius:.1rem;overflow:hidden;
+    background:var(--md-default-bg-color);
+}
+.s-graph canvas{display:block;width:100%;height:100%;}
+
+/* ══════════════
+   SHARE AREA
+   ══════════════ */
+#shareArea{
+    background:var(--md-code-bg-color);
+    border-radius:.1rem;padding:1rem;margin-top:.8rem;
+}
+#shareArea h3{
+    font-size:.75rem;font-weight:500;margin-bottom:.6rem;
+    color:var(--md-default-fg-color--light);
+}
+#resultsURL{
+    width:100%;padding:.3rem .5rem;border-radius:.1rem;
+    background:var(--md-default-bg-color);
+    border:1px solid var(--md-default-fg-color--lightest);
+    color:var(--md-default-fg-color);
+    font-family:'Roboto Mono',monospace;font-size:.65rem;
+    outline:none;
+}
+#resultsURL:focus{border-color:var(--md-primary-fg-color);}
+#resultsImg{max-width:100%;border-radius:.1rem;margin-top:.4rem;}
+
+/* ═══════════════════
+   FOOTER — MkDocs
+   ═══════════════════ */
+.md-footer{
+    background-color:var(--md-footer-bg-color);
+    color:hsla(0,0%,100%,0.7);
+}
+.md-footer__inner{
+    max-width:61rem;margin:0 auto;
+    padding:.8rem .6rem;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:.64rem;
+}
+.md-footer a{
+    color:hsla(0,0%,100%,0.45);text-decoration:none;
+    transition:color .125s;
+}
+.md-footer a:hover{color:hsla(0,0%,100%,0.7);}
+.md-footer__meta{
+    display:flex;gap:1.2rem;align-items:center;
+}
+
+/* ════════════════
+   RESPONSIVE
+   ════════════════ */
+@media(max-width:76.25em){
+    .md-main__inner{padding:1rem .8rem;}
+}
+@media(max-width:44.9375em){
+    .md-header__inner{padding:0 .4rem;}
+    .md-main__inner{padding:.8rem .5rem;}
+    .metrics-grid{grid-template-columns:1fr;}
+    .stats-grid{grid-template-columns:1fr 1fr;}
+    .stats-grid .s-card:last-child{grid-column:1/-1;}
+    .m-val{font-size:1.4rem;}
+    #startStopBtn{width:100%;max-width:16rem;}
+    .md-tabs__inner{padding:0 .4rem;}
+    .md-footer__inner{flex-direction:column;gap:.3rem;text-align:center;}
+}
+@media(max-width:22em){
+    .stats-grid{grid-template-columns:1fr;}
+    .stats-grid .s-card:last-child{grid-column:auto;}
+}
+</style>
+
+<script>
+function I(i){return document.getElementById(i);}
+
+var SPEEDTEST_SERVERS=[];
+var s=new Speedtest();
+s.setParameter("telemetry_level","basic");
+
+function initServers(){
+    if(SPEEDTEST_SERVERS.length===0){
+        I("loading").style.display="none";
+        I("serverArea").style.display="none";
+        I("testWrapper").className="visible";
+        initUI();
+    }else{
+        var noServersAvailable=function(){I("message").textContent="No servers available";};
+        var runServerSelect=function(){
+            s.selectServer(function(server){
+                if(server!=null){
+                    I("loading").style.display="none";
+                    var sel=I("server");
+                    for(var i=0;i<SPEEDTEST_SERVERS.length;i++){
+                        if(SPEEDTEST_SERVERS[i].pingT===-1) continue;
+                        var o=document.createElement("option");
+                        o.value=i;o.textContent=SPEEDTEST_SERVERS[i].name;
+                        if(SPEEDTEST_SERVERS[i]===server) o.selected=true;
+                        sel.appendChild(o);
+                    }
+                    I("testWrapper").className="visible";
+                    initUI();
+                }else noServersAvailable();
+            });
+        };
+        if(typeof SPEEDTEST_SERVERS==="string"){
+            s.loadServerList(SPEEDTEST_SERVERS,function(servers){
+                if(servers==null) noServersAvailable();
+                else{SPEEDTEST_SERVERS=servers;runServerSelect();}
+            });
+        }else{s.addTestPoints(SPEEDTEST_SERVERS);runServerSelect();}
+    }
+}
+
+/* ═══════ LIVE GRAPH ENGINE ═══════ */
+function createGraphState(){return{data:[],max:1};}
+
+var graphs={
+    dl:createGraphState(),ul:createGraphState(),
+    ping:createGraphState(),jitter:createGraphState()
+};
+
+function pushGraph(state,val){
+    state.data.push(val);
+    var m=0;
+    for(var i=0;i<state.data.length;i++) if(state.data[i]>m) m=state.data[i];
+    state.max=Math.max(m*1.15,1);
+}
+
+function drawGraph(canvas,state,color,softColor){
+    var ctx=canvas.getContext("2d");
+    var dp=window.devicePixelRatio||1;
+    var w=canvas.clientWidth,h=canvas.clientHeight;
+    if(w===0||h===0) return;
+    if(canvas.width!==w*dp||canvas.height!==h*dp){
+        canvas.width=w*dp;canvas.height=h*dp;
+    }
+    ctx.setTransform(dp,0,0,dp,0,0);
+    ctx.clearRect(0,0,w,h);
+
+    // Subtle grid lines
+    ctx.strokeStyle="rgba(0,0,0,0.06)";
+    ctx.lineWidth=0.5;
+    for(var g=1;g<4;g++){
+        var gy=h*(g/4);
+        ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();
+    }
+
+    var data=state.data,max=state.max;
+    if(data.length<2) return;
+
+    var step=w/(data.length-1);
+    var startX=0;
+
+    // Filled area
+    ctx.beginPath();
+    ctx.moveTo(startX,h);
+    for(var i=0;i<data.length;i++){
+        var x=startX+i*step;
+        var y=h-(data[i]/max)*h*0.85-h*0.05;
+        if(i===0) ctx.lineTo(x,y);
+        else{
+            var px=startX+(i-1)*step;
+            var py=h-(data[i-1]/max)*h*0.85-h*0.05;
+            var cpx=(px+x)/2;
+            ctx.bezierCurveTo(cpx,py,cpx,y,x,y);
+        }
+    }
+    ctx.lineTo(startX+(data.length-1)*step,h);
+    ctx.closePath();
+    ctx.fillStyle=softColor;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    for(var i=0;i<data.length;i++){
+        var x=startX+i*step;
+        var y=h-(data[i]/max)*h*0.85-h*0.05;
+        if(i===0) ctx.moveTo(x,y);
+        else{
+            var px=startX+(i-1)*step;
+            var py=h-(data[i-1]/max)*h*0.85-h*0.05;
+            var cpx=(px+x)/2;
+            ctx.bezierCurveTo(cpx,py,cpx,y,x,y);
+        }
+    }
+    ctx.strokeStyle=color;
+    ctx.lineWidth=1.2;
+    ctx.stroke();
+
+    // Endpoint dot
+    if(data.length>0){
+        var lx=startX+(data.length-1)*step;
+        var ly=h-(data[data.length-1]/max)*h*0.85-h*0.05;
+        ctx.beginPath();
+        ctx.arc(lx,ly,2,0,Math.PI*2);
+        ctx.fillStyle=color;
+        ctx.fill();
+    }
+}
+
+function resetGraphs(){
+    graphs.dl=createGraphState();graphs.ul=createGraphState();
+    graphs.ping=createGraphState();graphs.jitter=createGraphState();
+}
+
+function format(d){
+    d=Number(d);
+    if(d<10) return d.toFixed(2);
+    if(d<100) return d.toFixed(1);
+    return d.toFixed(0);
+}
+
+/* ═══════ UI LOGIC ═══════ */
+var uiData=null;
+var phaseText={0:"Initializing",1:"Download",2:"Latency",3:"Upload",4:"Complete",5:"Aborted"};
+
+function startStop(){
+    if(s.getState()===3){
+        s.abort();uiData=null;
+        I("startStopBtn").className="";
+        I("server").disabled=false;
+        initUI();
+    }else{
+        resetGraphs();
+        I("startStopBtn").className="running";
+        I("shareArea").style.display="none";
+        I("server").disabled=true;
+        s.onupdate=function(data){uiData=data;};
+        s.onend=function(aborted){
+            I("startStopBtn").className="";
+            I("server").disabled=false;
+            updateUI(true);
+            if(!aborted){
+                try{
+                    var tid=uiData.testId;
+                    if(tid!=null){
+                        var u=window.location.href.substring(0,window.location.href.lastIndexOf("/"))+"/results/?id="+tid;
+                        I("resultsImg").src=u;I("resultsImg").alt="Results";
+                        I("resultsURL").value=u;I("testId").textContent=tid;
+                        I("shareArea").style.display="";
+                    }
+                }catch(e){}
+            }
+        };
+        s.start();
+    }
+}
+
+function computeProgress(d){
+    if(!d) return 0;
+    var st=d.testState;
+    if(st<=0) return 0;
+    if(st===1) return Number(d.dlProgress)*0.33;
+    if(st===2) return 0.33+Number(d.pingProgress)*0.33;
+    if(st===3) return 0.66+Number(d.ulProgress)*0.34;
+    return 1;
+}
+
+function updateUI(forced){
+    if(!forced&&s.getState()!==3) return;
+    if(!uiData) return;
+    var st=uiData.testState;
+
+    I("ip").textContent=uiData.clientIp;
+    I("dlText").textContent=(st===1&&uiData.dlStatus==0)?"...":format(uiData.dlStatus);
+    I("ulText").textContent=(st===3&&uiData.ulStatus==0)?"...":format(uiData.ulStatus);
+    I("pingText").textContent=format(uiData.pingStatus);
+    I("jitText").textContent=format(uiData.jitterStatus);
+
+    if(st===1) pushGraph(graphs.dl,Number(uiData.dlStatus));
+    if(st===3) pushGraph(graphs.ul,Number(uiData.ulStatus));
+    if(st>=2){
+        pushGraph(graphs.ping,Number(uiData.pingStatus));
+        pushGraph(graphs.jitter,Number(uiData.jitterStatus));
+    }
+
+    drawGraph(I("dlGraph"),graphs.dl,"#6d8f2e","rgba(109,143,46,0.15)");
+    drawGraph(I("ulGraph"),graphs.ul,"#4a8a32","rgba(74,138,50,0.15)");
+    drawGraph(I("pingGraph"),graphs.ping,"#9a8e20","rgba(154,142,32,0.12)");
+    drawGraph(I("jitGraph"),graphs.jitter,"#a06528","rgba(160,101,40,0.12)");
+
+    var pct=computeProgress(uiData);
+    I("progressFill").style.width=(pct*100)+"%";
+    I("progressPct").textContent=Math.round(pct*100)+"%";
+    I("progressLabel").textContent=phaseText[st]||"";
+}
+
+function frame(){requestAnimationFrame(frame);updateUI();}
+frame();
+
+function initUI(){
+    I("dlText").textContent="";I("ulText").textContent="";
+    I("pingText").textContent="";I("jitText").textContent="";
+    I("ip").textContent="";
+    I("progressFill").style.width="0%";
+    I("progressPct").textContent="0%";
+    I("progressLabel").textContent="Ready";
+    var ids=["dlGraph","ulGraph","pingGraph","jitGraph"];
+    for(var i=0;i<ids.length;i++){
+        var c=I(ids[i]),ctx=c.getContext("2d");
+        var dp=window.devicePixelRatio||1;
+        c.width=c.clientWidth*dp;c.height=c.clientHeight*dp;
+        ctx.clearRect(0,0,c.width,c.height);
+    }
+}
+</script>
+</head>
+<body onload="initServers()">
+
+<!-- ═══ Header ═══ -->
+<header class="md-header">
+    <div class="md-header__inner">
+        <a href="https://www.wobcom.net/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;">
+            <img src="https://www.wobcom.net/images/logo_white.svg" alt="WOBCOM" style="height:1.6rem;margin-right:.4rem;" />
+        </a>
+        <div class="md-header__title">Speedtest</div>
+        <div id="serverArea">
+            <select id="server" onchange="s.setSelectedServer(SPEEDTEST_SERVERS[this.value])"></select>
+        </div>
+    </div>
+</header>
+
+<!-- ═══ Tabs ═══ -->
+<nav class="md-tabs">
+    <div class="md-tabs__inner">
+        <a class="md-tabs__link" href="https://wobcom.net/" target="_blank" rel="noopener">ISP Site</a>
+        <a class="md-tabs__link active">Speedtest</a>
+        <a class="md-tabs__link" href="https://wobcom.net/communities/" target="_blank" rel="noopener">BGP Communities</a>
+    </div>
+</nav>
+
+<!-- ═══ Loading ═══ -->
+<div id="loading" style="display:flex">
+    <div class="spinner"></div>
+    <div id="message">Selecting server...</div>
+</div>
+
+<!-- ═══ Main Content ═══ -->
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner">
+<div class="md-content" id="testWrapper">
+<div class="md-typeset">
+
+    <h1>AS9136 Speedtest</h1>
+
+    <!-- Start -->
+    <div class="start-section">
+        <button id="startStopBtn" onclick="startStop()"></button>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+        <span class="progress-label" id="progressLabel">Ready</span>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+
+    <h2>Results</h2>
+
+    <!-- Download / Upload -->
+    <div class="metrics-grid">
+        <div class="m-card dl">
+            <div class="m-bar"></div>
+            <div class="m-head">
+                <span class="m-label">Download</span>
+                <div class="m-val-row">
+                    <span id="dlText" class="m-val"></span>
+                    <span class="m-unit">Mbit/s</span>
+                </div>
+            </div>
+            <div class="m-graph"><canvas id="dlGraph"></canvas></div>
+        </div>
+        <div class="m-card ul">
+            <div class="m-bar"></div>
+            <div class="m-head">
+                <span class="m-label">Upload</span>
+                <div class="m-val-row">
+                    <span id="ulText" class="m-val"></span>
+                    <span class="m-unit">Mbit/s</span>
+                </div>
+            </div>
+            <div class="m-graph"><canvas id="ulGraph"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Ping / Jitter / IP -->
+    <div class="stats-grid">
+        <div class="s-card ping">
+            <div class="m-bar"></div>
+            <div class="s-label">Ping</div>
+            <div class="s-val-row">
+                <span id="pingText" class="s-val"></span>
+                <span class="s-unit">ms</span>
+            </div>
+            <div class="s-graph"><canvas id="pingGraph"></canvas></div>
+        </div>
+        <div class="s-card jitter">
+            <div class="m-bar"></div>
+            <div class="s-label">Jitter</div>
+            <div class="s-val-row">
+                <span id="jitText" class="s-val"></span>
+                <span class="s-unit">ms</span>
+            </div>
+            <div class="s-graph"><canvas id="jitGraph"></canvas></div>
+        </div>
+        <div class="s-card ip-card">
+            <div class="m-bar"></div>
+            <div class="s-label">Your IP</div>
+            <div class="s-val-row">
+                <span id="ip" class="s-val"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share -->
+    <div id="shareArea" style="display:none">
+        <h3>Share Results</h3>
+        <p>Test ID: <span id="testId"></span></p>
+        <input type="text" value="" id="resultsURL" readonly onclick="this.select();document.execCommand('copy');" />
+        <img src="" id="resultsImg" />
+    </div>
+
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- ═══ Footer ═══ -->
+<footer class="md-footer">
+    <div class="md-footer__inner">
+        <span>Made with <a href="https://github.com/librespeed/speedtest" target="_blank" rel="noopener">LibreSpeed</a></span>
+        <div class="md-footer__meta">
+            <a href="https://wobcom.net/" target="_blank" rel="noopener">ISP Site</a>
+            <a href="https://www.wobcom.de/" target="_blank" rel="noopener">Wobcom.de</a>
+            <a href="https://www.wobcom.de/impressum/" target="_blank" rel="noopener">Imprint</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
